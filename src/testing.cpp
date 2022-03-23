@@ -6,20 +6,13 @@
 
 static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
 
+// HELPER METHODS ====================================================
+
 /**
  * Log a message to the console.
  */
 void log(std::string message) {
     std::cout << "[LOG] " << message << std::endl;
-}
-
-/**
- * Print immediate child members of document.
- */
-void printDocumentMembers(rapidjson::Document& document) {
-    for (auto& m : document.GetObject()) {
-        printf("Type of member '%s' is %s\n", m.name.GetString(), kTypeNames[m.value.GetType()]);
-    }
 }
 
 /**
@@ -32,14 +25,6 @@ rapidjson::Document getDocument(std::string jsonString) {
 }
 
 /**
- * Get a pre-defined document for testing purposes.
- */
-rapidjson::Document getTestDocument() {
-    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
-    return getDocument(jsonString);
-}
-
-/**
  * Convert a document into a string.
  */
 std::string stringifyDocument(rapidjson::Document& document) {
@@ -49,7 +34,24 @@ std::string stringifyDocument(rapidjson::Document& document) {
     return buffer.GetString();
 }
 
-// tests ==========
+/**
+ * Print immediate child members of document.
+ */
+void printDocumentMembers(rapidjson::Document& document) {
+    for (auto& m : document.GetObject()) {
+        printf("Type of member '%s' is %s\n", m.name.GetString(), kTypeNames[m.value.GetType()]);
+    }
+}
+
+// END OF HELPER METHODS ==================================================
+
+/**
+ * Get a pre-defined document for testing purposes.
+ */
+rapidjson::Document getTestDocument() {
+    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
+    return getDocument(jsonString);
+}
 
 void performSimpleTest1() {
     // parse a JSON string into DOM
@@ -68,8 +70,6 @@ void performSimpleTest2() {
     rapidjson::Document document = getTestDocument();
     printDocumentMembers(document);
 }
-
-// end of tests ==========
 
 int main() {
     log("Executing program");
