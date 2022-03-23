@@ -16,11 +16,20 @@ void printDocumentMembers(rapidjson::Document& document) {
     }
 }
 
+rapidjson::Document getDocument(std::string jsonString) {
+    rapidjson::Document document;
+    document.Parse(jsonString.c_str());
+    return document;
+}
+
+rapidjson::Document getTestDocument() {
+    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
+    return getDocument(jsonString);
+}
+
 void performSimpleTest() {
     // 1. Parse a JSON string into DOM.
-    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
-    rapidjson::Document document;
-    document.Parse(jsonString);
+    rapidjson::Document document = getTestDocument();
 
     // 2. Modify it by DOM.
     rapidjson::Value& stars = document["stars"];
@@ -36,10 +45,12 @@ void performSimpleTest() {
 }
 
 int main() {
-    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
-    rapidjson::Document document;
-    document.Parse(jsonString);
+    log("Executing program");
+
+    rapidjson::Document document = getTestDocument();
 
     printDocumentMembers(document);
+
+    log ("Program finished executing.");
     return 0;
 }
