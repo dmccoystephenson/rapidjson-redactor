@@ -8,19 +8,17 @@ void log(std::string message) {
     std::cout << "[LOG] " << message << std::endl;
 }
 
-const char* getEnvironmentVariable(const char* variableName) {
-    const char* toReturn = getenv(variableName);
-    if (!toReturn) {
-        std::cout << "[ERROR] Something went wrong attempting to retrieve the environment variable " << variableName << std::endl;
+void printDocMembers(rapidjson::Document& document) {
+    for (auto& member : document.GetObject()) {
+        std::cout << member.name.GetString() << std::endl;
     }
-    return toReturn;
 }
 
-int main() {
+void performTest() {
     // 1. Parse a JSON string into DOM.
-    const char* json = "{\"project\":\"rapidjson\",\"stars\":10}";
+    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
     rapidjson::Document document;
-    document.Parse(json);
+    document.Parse(jsonString);
 
     // 2. Modify it by DOM.
     rapidjson::Value& stars = document["stars"];
@@ -33,5 +31,13 @@ int main() {
 
     // Output {"project":"rapidjson","stars":11}
     std::cout << buffer.GetString() << std::endl;
+}
+
+int main() {
+    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
+    rapidjson::Document document;
+    document.Parse(jsonString);
+
+    printDocMembers(document);
     return 0;
 }
