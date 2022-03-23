@@ -27,7 +27,14 @@ rapidjson::Document getTestDocument() {
     return getDocument(jsonString);
 }
 
-void performSimpleTest() {
+std::string stringifyDocument(rapidjson::Document& document) {
+    rapidjson::StringBuffer buffer;
+    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+    document.Accept(writer);
+    return buffer.GetString();
+}
+
+void performSimpleTest1() {
     // 1. Parse a JSON string into DOM.
     rapidjson::Document document = getTestDocument();
 
@@ -36,20 +43,22 @@ void performSimpleTest() {
     stars.SetInt(stars.GetInt() + 1);
 
     // 3. Stringify the DOM
-    rapidjson::StringBuffer buffer;
-    rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-    document.Accept(writer);
+    std::string stringifiedDocument = stringifyDocument(document);
 
     // Output {"project":"rapidjson","stars":11}
-    std::cout << buffer.GetString() << std::endl;
+    std::cout << stringifiedDocument << std::endl;
+}
+
+void performSimpleTest2() {
+    rapidjson::Document document = getTestDocument();
+    printDocumentMembers(document);
 }
 
 int main() {
     log("Executing program");
 
-    rapidjson::Document document = getTestDocument();
-
-    printDocumentMembers(document);
+    performSimpleTest1();
+    performSimpleTest2();
 
     log ("Program finished executing.");
     return 0;
