@@ -37,7 +37,7 @@ std::string stringifyDocument(rapidjson::Document& document) {
 /**
  * Print immediate child members of document.
  */
-void printDocumentMembers(rapidjson::Document& document) {
+void printDocumentMemberTypes(rapidjson::Document& document) {
     for (auto& m : document.GetObject()) {
         printf("Type of member '%s' is %s\n", m.name.GetString(), kTypeNames[m.value.GetType()]);
     }
