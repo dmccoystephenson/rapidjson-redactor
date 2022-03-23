@@ -52,17 +52,15 @@ std::string stringifyDocument(rapidjson::Document& document) {
 // tests ==========
 
 void performSimpleTest1() {
-    // 1. Parse a JSON string into DOM.
+    // parse a JSON string into DOM
     rapidjson::Document document = getTestDocument();
 
-    // 2. Modify it by DOM.
+    // modify it by DOM
     rapidjson::Value& stars = document["stars"];
     stars.SetInt(stars.GetInt() + 1);
 
-    // 3. Stringify the DOM
+    // stringify and print the DOM
     std::string stringifiedDocument = stringifyDocument(document);
-
-    // Output {"project":"rapidjson","stars":11}
     std::cout << stringifiedDocument << std::endl;
 }
 
