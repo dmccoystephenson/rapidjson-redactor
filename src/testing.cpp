@@ -53,7 +53,7 @@ rapidjson::Document getTestDocument() {
     return getDocument(jsonString);
 }
 
-void performSimpleTest1() {
+void performSimpleTest() {
     // parse a JSON string into DOM
     rapidjson::Document document = getTestDocument();
 
@@ -66,16 +66,10 @@ void performSimpleTest1() {
     std::cout << stringifiedDocument << std::endl;
 }
 
-void performSimpleTest2() {
-    rapidjson::Document document = getTestDocument();
-    printDocumentMembers(document);
-}
-
 int main() {
     log("Executing program");
 
-    performSimpleTest1();
-    performSimpleTest2();
+    performSimpleTest();
 
     log ("Program finished executing.");
     return 0;
