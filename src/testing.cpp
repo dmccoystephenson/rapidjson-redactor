@@ -4,17 +4,19 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
+
 void log(std::string message) {
     std::cout << "[LOG] " << message << std::endl;
 }
 
-void printDocMembers(rapidjson::Document& document) {
-    for (auto& member : document.GetObject()) {
-        std::cout << member.name.GetString() << std::endl;
+void printDocumentMembers(rapidjson::Document& document) {
+    for (auto& m : document.GetObject()) {
+        printf("Type of member '%s' is %s\n", m.name.GetString(), kTypeNames[m.value.GetType()]);
     }
 }
 
-void performTest() {
+void performSimpleTest() {
     // 1. Parse a JSON string into DOM.
     const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
     rapidjson::Document document;
@@ -38,6 +40,6 @@ int main() {
     rapidjson::Document document;
     document.Parse(jsonString);
 
-    printDocMembers(document);
+    printDocumentMembers(document);
     return 0;
 }
