@@ -5,6 +5,7 @@
 #include "rapidjson/stringbuffer.h"
 
 static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
+int indent = 0;
 
 // HELPER METHODS ====================================================
 
@@ -34,12 +35,43 @@ std::string stringifyDocument(rapidjson::Document& document) {
     return buffer.GetString();
 }
 
-/**
- * Print immediate child members of document.
- */
-void printDocumentMemberTypes(rapidjson::Document& document) {
+std::string getIndent(int numSpaces) {
+    std::string toReturn = "";
+    for (int i = 0; i < numSpaces*2; i++) {
+        toReturn = toReturn + " ";
+    }
+    return toReturn;
+}
+
+void printObject(rapidjson::Value& objectToPrint) {
+    for (auto& m : objectToPrint.GetObject()) {
+        std::string name = m.name.GetString();
+        std::string type = kTypeNames[m.value.GetType()];
+
+        std::cout << getIndent(indent) << name << std::endl;
+
+        if (type == "Object") {
+            indent++;
+            auto& foundObject = objectToPrint[name.c_str()];
+            printObject(foundObject);
+            indent--;
+        }
+    }
+}
+
+void printDocument(rapidjson::Document& document) {
     for (auto& m : document.GetObject()) {
-        printf("Type of member '%s' is %s\n", m.name.GetString(), kTypeNames[m.value.GetType()]);
+        std::string name = m.name.GetString();
+        std::string type = kTypeNames[m.value.GetType()];
+
+        std::cout << name << std::endl;
+
+        if (type == "Object") {
+            indent++;
+            auto& object = document[name.c_str()];
+            printObject(object);
+            indent--;
+        }
     }
 }
 
@@ -49,28 +81,16 @@ void printDocumentMemberTypes(rapidjson::Document& document) {
  * Get a pre-defined document for testing purposes.
  */
 rapidjson::Document getTestDocument() {
-    const char* jsonString = "{\"project\":\"rapidjson\",\"stars\":10}";
+    const char* jsonString = "{\"name\":\"Alex\",\"age\":24,\"subjects\":{\"s1\":\"C++\",\"s2\":\"software engineering\",\"s3\":\"Data Science\"}}";
     return getDocument(jsonString);
-}
-
-void performSimpleTest() {
-    // parse a JSON string into DOM
-    rapidjson::Document document = getTestDocument();
-
-    // modify it by DOM
-    rapidjson::Value& stars = document["stars"];
-    stars.SetInt(stars.GetInt() + 1);
-
-    // stringify and print the DOM
-    std::string stringifiedDocument = stringifyDocument(document);
-    std::cout << stringifiedDocument << std::endl;
 }
 
 int main() {
     log("Executing program");
 
-    performSimpleTest();
-
-    log ("Program finished executing.");
+    rapidjson::Document document = getTestDocument();
+    printDocument(document);
+    
+    log("Program finished executing");
     return 0;
 }
