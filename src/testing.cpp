@@ -109,6 +109,47 @@ void printDocument(rapidjson::Document& document) {
     }
 }
 
+/**
+ * @brief Recursively search for a member in a value and remove it.
+ * 
+ * @param value The value to begin searching.
+ * @param memberToRemove The member to remove.
+ * @return true Member was found and removed.
+ * @return false Member was not found.
+ */
+bool findAndRemove(rapidjson::Value& value, std::string memberToRemove) {
+    if (value.HasMember(memberToRemove.c_str())) {
+        log("Member found. Removing.");
+        value.RemoveMember(memberToRemove.c_str());
+        return true;
+    }
+
+    if (value.IsObject()) {
+        for (auto& m : value.GetObject()) {
+            std::string name = m.name.GetString();
+            std::string type = kTypeNames[m.value.GetType()];
+
+            if (type == "Object" || type == "Array") {
+                auto& v = value[name.c_str()];
+                return findAndRemove(v, memberToRemove);
+            }
+        }
+    }
+    else if (value.IsArray()) {
+        for (auto& m : value.GetArray()) {
+            std::string name = "N/A";
+            std::string type = kTypeNames[m.GetType()];
+
+            if (type == "Object" || type == "Array") {
+                auto& v = value[name.c_str()];
+                return findAndRemove(v, memberToRemove);
+            }
+        }
+    }
+    log("Member not found.");
+    return false;
+}
+
 // END OF HELPER METHODS ==================================================
 
 /**
@@ -123,8 +164,13 @@ int main() {
     log("Executing program");
 
     rapidjson::Document document = getTestDocument();
-    printDocument(document);
+
+    log("attempting to remove latency");
+
+    bool success = findAndRemove(document, "latency");
     
+    std::cout << "success: " << success << std::endl;
+
     log("Program finished executing");
     return 0;
 }
