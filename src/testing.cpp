@@ -71,22 +71,11 @@ void printValue(rapidjson::Value& valueToPrint) {
     }
     else if (valueToPrint.IsArray()) {
         for (auto& m : valueToPrint.GetArray()) {
-            std::string name = "N/A";
             std::string type = kTypeNames[m.GetType()];
 
-            std::cout << getIndent(indent) << name  << " - " << type << std::endl;
-
-            // if (type == "Object") { // TODO: fix IsObject() assertion failing when attempting to print objects in arrays
-            //     indent++;
-            //     auto& value = valueToPrint[name.c_str()];
-            //     printValue(value);
-            //     indent--;
-            // }
-            
-            if (type == "Array") {
+            if (type == "Object" || type == "Array") {
                 indent++;
-                auto& value = valueToPrint[name.c_str()];
-                printValue(value);
+                printValue(m);
                 indent--;
             }
         }
@@ -126,10 +115,10 @@ bool findAndRemove(rapidjson::Value& value, std::string memberToRemove) {
 
     if (value.IsObject()) {
         for (auto& m : value.GetObject()) {
-            std::string name = m.name.GetString();
             std::string type = kTypeNames[m.value.GetType()];
 
             if (type == "Object" || type == "Array") {
+                std::string name = m.name.GetString();
                 auto& v = value[name.c_str()];
                 return findAndRemove(v, memberToRemove);
             }
@@ -137,12 +126,10 @@ bool findAndRemove(rapidjson::Value& value, std::string memberToRemove) {
     }
     else if (value.IsArray()) {
         for (auto& m : value.GetArray()) {
-            std::string name = "N/A";
             std::string type = kTypeNames[m.GetType()];
 
             if (type == "Object" || type == "Array") {
-                auto& v = value[name.c_str()];
-                return findAndRemove(v, memberToRemove);
+                return findAndRemove(m, memberToRemove);
             }
         }
     }
@@ -165,11 +152,11 @@ int main() {
 
     rapidjson::Document document = getTestDocument();
 
-    log("attempting to remove latency");
+    printValue(document);
 
-    bool success = findAndRemove(document, "latency");
-    
-    std::cout << "success: " << success << std::endl;
+    // log("attempting to remove latency");
+    // bool success = findAndRemove(document, "latency");
+    // std::cout << "success: " << success << std::endl;
 
     log("Program finished executing");
     return 0;
