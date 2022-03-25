@@ -86,6 +86,11 @@ void printDocument(rapidjson::Document& document) {
     printValue(document);
 }
 
+void removeFromArray(rapidjson::Value array, std::string memberToRemove) {
+    // TODO: implement
+    log("WARNING: removeFromArray() method not implemented yet");
+}
+
 /**
  * @brief Recursively search for a member in a value and remove it.
  * 
@@ -95,13 +100,13 @@ void printDocument(rapidjson::Document& document) {
  * @return false Member was not found.
  */
 bool findAndRemove(rapidjson::Value& value, std::string memberToRemove) {
-    if (value.HasMember(memberToRemove.c_str())) {
-        log("Member found. Removing.");
-        value.RemoveMember(memberToRemove.c_str());
-        return true;
-    }
-
     if (value.IsObject()) {
+        if (value.HasMember(memberToRemove.c_str())) {
+            log("Member found. Removing.");
+            value.RemoveMember(memberToRemove.c_str());
+            return true;
+        }
+
         for (auto& m : value.GetObject()) {
             std::string type = kTypeNames[m.value.GetType()];
 
@@ -113,6 +118,8 @@ bool findAndRemove(rapidjson::Value& value, std::string memberToRemove) {
         }
     }
     else if (value.IsArray()) {
+        // TODO: remove from array if present?
+
         for (auto& m : value.GetArray()) {
             std::string type = kTypeNames[m.GetType()];
 
@@ -140,11 +147,14 @@ int main() {
 
     rapidjson::Document document = getTestDocument();
 
-    printDocument(document);
+    // printDocument(document);
 
-    // log("attempting to remove latency");
-    // bool success = findAndRemove(document, "latency");
-    // std::cout << "success: " << success << std::endl;
+    auto& payload = document["payload"];
+    auto& data = payload["data"];
+    auto& partII = data["partII"];
+
+    // findAndRemove(partII, "pathHistory");
+    printValue(partII);
 
     log("Program finished executing");
     return 0;
