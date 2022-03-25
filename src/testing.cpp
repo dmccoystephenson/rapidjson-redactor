@@ -83,19 +83,7 @@ void printValue(rapidjson::Value& valueToPrint) {
 }
 
 void printDocument(rapidjson::Document& document) {
-    for (auto& m : document.GetObject()) {
-        std::string name = m.name.GetString();
-        std::string type = kTypeNames[m.value.GetType()];
-
-        std::cout << name << std::endl;
-
-        if (type == "Object") {
-            indent++;
-            auto& object = document[name.c_str()];
-            printValue(object);
-            indent--;
-        }
-    }
+    printValue(document);
 }
 
 /**
@@ -152,7 +140,7 @@ int main() {
 
     rapidjson::Document document = getTestDocument();
 
-    printValue(document);
+    printDocument(document);
 
     // log("attempting to remove latency");
     // bool success = findAndRemove(document, "latency");
