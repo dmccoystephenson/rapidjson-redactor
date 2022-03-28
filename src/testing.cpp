@@ -82,7 +82,7 @@ void printDocument(rapidjson::Document& document) {
 }
 
 /**
- * @brief Recursively search for a member in a value and remove it.
+ * @brief Recursively search for a member in a value and remove it. Returns when the member is found and removed for the first time.
  * 
  * @param value The value to begin searching.
  * @param member The member to remove.
@@ -120,7 +120,7 @@ void findAndRemoveMember(rapidjson::Value& value, std::string member, bool& succ
 }
 
 /**
- * @brief Recursively check if a member is present.
+ * @brief Recursively check if a member is present. Returns upon finding the first instance of the member.
  * 
  * @param value The value to begin searching.
  * @param member The member to remove.
