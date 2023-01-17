@@ -6,6 +6,11 @@
 
 static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", "String", "Number" };
 
+/**
+ * @brief A tool for redacting members of rapidjson::Document objects
+ * 
+ * @author Daniel McCoy Stephenson
+ */
 class Redactor {
     public:
         Redactor();
