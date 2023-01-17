@@ -5,90 +5,113 @@ Redactor::Redactor() {
     debugFlag = false;
 }
 
-void Redactor::redactMemberByName(rapidjson::Value& value, std::string member, bool& success) {
+void Redactor::redactAllInstancesOfMemberByName(rapidjson::Value& value, std::string member, bool& success) {
     if (value.IsObject()) {
-        if (value.HasMember(member.c_str())) {
+        while (value.HasMember(member.c_str())) {
             value.RemoveMember(member.c_str());
             success = true;
         }
-        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            redactMemberByName(itr->value, member, success);
+        for (auto& m : value.GetObject()) {
+            std::string type = kTypeNames[m.value.GetType()];
+            if (type == "Object" || type == "Array") {
+                std::string name = m.name.GetString();
+                auto& v = value[name.c_str()];
+                redactAllInstancesOfMemberByName(v, member, success);
+            }
         }
-    } else if (value.IsArray()) {
-        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
-            redactMemberByName(value[i], member, success);
+    }
+    else if (value.IsArray()) {
+        for (auto& m : value.GetArray()) {
+            std::string type = kTypeNames[m.GetType()];
+            if (type == "Object" || type == "Array") {
+                redactAllInstancesOfMemberByName(m, member, success);
+            }
         }
     }
 }
 
 void Redactor::redactMemberByPath(rapidjson::Value& value, std::string path, bool& success) {
     std::string topLevel = getTopLevelFromPath(path);
-    // std::cout << "[DEBUG] " << "Searching for " << topLevel << " in " << std::endl;
     if (value.IsObject()) {
         if (value.HasMember(topLevel.c_str())) {
-            // std::cout << "[DEBUG] " << "Found " << topLevel << std::endl;
             value.RemoveMember(topLevel.c_str());
             success = true;
-            return;
         }
-        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            removeTopLevelFromPath(path);
-            redactMemberByPath(itr->value, path, success);
-
-            if (success) {
-                return;
+        for (auto& m : value.GetObject()) {
+            std::string type = kTypeNames[m.value.GetType()];
+            if (type == "Object" || type == "Array") {
+                std::string name = m.name.GetString();
+                auto& v = value[name.c_str()];
+                removeTopLevelFromPath(path);
+                redactMemberByPath(v, path, success);
             }
         }
-    } else if (value.IsArray()) {
-        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
-            removeTopLevelFromPath(path);
-            redactMemberByPath(value[i], path, success);
-
-            if (success) {
-                return;
+    }
+    else if (value.IsArray()) {
+        for (auto& m : value.GetArray()) {
+            std::string type = kTypeNames[m.GetType()];
+            if (type == "Object" || type == "Array") {
+                removeTopLevelFromPath(path);
+                redactMemberByPath(m, path, success);
             }
         }
     }
 }
 
 void Redactor::searchForMemberByName(rapidjson::Value& value, std::string member, bool& success) {
+    if (success) {
+        // return if search has already succeeded
+        return;
+    }
     if (value.IsObject()) {
         if (value.HasMember(member.c_str())) {
             success = true;
         }
-        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            searchForMemberByName(itr->value, member, success);
+        for (auto& m : value.GetObject()) {
+            std::string type = kTypeNames[m.value.GetType()];
+            if (type == "Object" || type == "Array") {
+                std::string name = m.name.GetString();
+                auto& v = value[name.c_str()];
+                searchForMemberByName(v, member, success);
+            }
         }
-    } else if (value.IsArray()) {
-        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
-            searchForMemberByName(value[i], member, success);
+    }
+    else if (value.IsArray()) {
+        for (auto& m : value.GetArray()) {
+            std::string type = kTypeNames[m.GetType()];
+            if (type == "Object" || type == "Array") {
+                searchForMemberByName(m, member, success);
+            }
         }
     }
 }
 
 void Redactor::searchForMemberByPath(rapidjson::Value& value, std::string path, bool& success) {
-    std::cout << "[DEBUG] " << "Path: " << path << std::endl;
+    if (success) {
+        // return if search has already succeeded
+        return;
+    }
     std::string topLevel = getTopLevelFromPath(path);
     if (value.IsObject()) {
         if (value.HasMember(topLevel.c_str())) {
             success = true;
-            return;
         }
-        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            removeTopLevelFromPath(path);
-            searchForMemberByPath(itr->value, path, success);
-
-            if (success) {
-                return;
+        for (auto& m : value.GetObject()) {
+            std::string type = kTypeNames[m.value.GetType()];
+            if (type == "Object" || type == "Array") {
+                std::string name = m.name.GetString();
+                auto& v = value[name.c_str()];
+                removeTopLevelFromPath(path);
+                searchForMemberByPath(v, path, success);
             }
         }
-    } else if (value.IsArray()) {
-        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
-            removeTopLevelFromPath(path);
-            searchForMemberByPath(value[i], path, success);
-
-            if (success) {
-                return;
+    }
+    else if (value.IsArray()) {
+        for (auto& m : value.GetArray()) {
+            std::string type = kTypeNames[m.GetType()];
+            if (type == "Object" || type == "Array") {
+                removeTopLevelFromPath(path);
+                searchForMemberByPath(m, path, success);
             }
         }
     }

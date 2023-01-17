@@ -12,7 +12,7 @@ static const char* kTypeNames[] = { "Null", "False", "True", "Object", "Array", 
 class Redactor {
     public:
         Redactor();
-        void redactMemberByName(rapidjson::Value& value, std::string member, bool& success);
+        void redactAllInstancesOfMemberByName(rapidjson::Value& value, std::string member, bool& success);
         void redactMemberByPath(rapidjson::Value& value, std::string path, bool& success);
         void searchForMemberByName(rapidjson::Value& value, std::string member, bool& success);
         void searchForMemberByPath(rapidjson::Value& value, std::string path, bool& success);

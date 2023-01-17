@@ -102,7 +102,7 @@ void testRedactionByName() {
         redactor.searchForMemberByName(partII, member, psuccess1);
 
         bool rsuccess = false;
-        redactor.redactMemberByName(partII, member, rsuccess);
+        redactor.redactAllInstancesOfMemberByName(partII, member, rsuccess);
 
         bool psuccess2 = false;
         redactor.searchForMemberByName(partII, member, psuccess2);
