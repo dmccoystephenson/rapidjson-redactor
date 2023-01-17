@@ -1,8 +1,8 @@
-# testing rapidjson
-Testing the utilization of rapidjson.
+# Rapidjson Redactor
+This is a tool for redacting members of rapidjson documents.
 
-## goal
-I want to be able to find and remove members of the DOM at varying levels of depth.
+## Goal
+Be able to find and remove members of the DOM at varying levels of depth.
 
 ## relevant links
 - https://rapidjson.org/
