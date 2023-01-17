@@ -15,7 +15,9 @@ class Redactor {
     public:
         Redactor();
         void redactMemberByName(rapidjson::Value& value, std::string member, bool& success);
-        void isMemberPresent(rapidjson::Value& value, std::string member, bool& success);
+        void redactMemberByPath(rapidjson::Value& value, std::string path, bool& success);
+        void searchForMemberByName(rapidjson::Value& value, std::string member, bool& success);
+        void searchForMemberByPath(rapidjson::Value& value, std::string path, bool& success);
 
         void printValue(rapidjson::Value& valueToPrint);
         void printDocument(rapidjson::Document& document);
@@ -26,4 +28,6 @@ class Redactor {
         bool debugFlag;
 
         std::string getIndent(int numSpaces);
+        std::string getTopLevelFromPath(std::string& path);
+        void removeTopLevelFromPath(std::string& path);
 };
