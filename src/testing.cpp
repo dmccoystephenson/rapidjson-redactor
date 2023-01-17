@@ -31,7 +31,7 @@ rapidjson::Document getTestDocument(Redactor redactor) {
     return redactor.getDocumentFromString(jsonString);
 }
 
-int main() {
+void testRedactionByName() {
     Redactor redactor;
 
     rapidjson::Document document = getTestDocument(redactor);
@@ -87,7 +87,7 @@ int main() {
         std::string member = members[i];
 
         bool success = false;
-        redactor.isMemberPresent(partII, member, success);
+        redactor.searchForMemberByName(partII, member, success);
 
         numMembersPresentBeforeRedaction += success;
     }
@@ -99,13 +99,13 @@ int main() {
         std::string member = members[i];
 
         bool psuccess1 = false;
-        redactor.isMemberPresent(partII, member, psuccess1);
+        redactor.searchForMemberByName(partII, member, psuccess1);
 
         bool rsuccess = false;
         redactor.redactMemberByName(partII, member, rsuccess);
 
         bool psuccess2 = false;
-        redactor.isMemberPresent(partII, member, psuccess2);
+        redactor.searchForMemberByName(partII, member, psuccess2);
 
         numRedactions += rsuccess;
     }
@@ -117,7 +117,7 @@ int main() {
         std::string member = members[i];
 
         bool success = false;
-        redactor.isMemberPresent(partII, member, success);
+        redactor.searchForMemberByName(partII, member, success);
 
         numMembersPresentAfterRedaction += success;
     }
@@ -129,5 +129,117 @@ int main() {
     } else {
         log("Redaction failed!");
     }
+}
+
+void testRedactionByPath() {
+    Redactor redactor;
+
+    rapidjson::Document document = getTestDocument(redactor);
+    // redactor.printDocument(document);
+
+    std::string paths[] = { 
+                                "data.partII.accelLong",
+                                "data.partII.accelLat",
+                                "data.partII.accelVert",
+                                "data.partII.yawRate",
+                                "data.partII.steeringWheelAngle",
+                                "data.partII.leftTurnSignalOn",
+                                "data.partII.rightTurnSignalOn",
+                                "data.partII.hazardSignalOn",
+                                "data.partII.fogLightOn",
+                                "data.partII.lowBeamHeadlightsOn",
+                                "data.partII.highBeamHeadlightsOn",
+                                "data.partII.automaticLightControlOn",
+                                "data.partII.daytimeRunningLightsOn",
+                                "data.partII.parkingLightsOn",
+                                "data.partII.wiperStatusFront",
+                                "data.partII.wiperStatusRear",
+                                "data.partII.wiperRateFront",
+                                "data.partII.wiperRateRear",
+                                "data.partII.eventAirBagDeployment",
+                                "data.partII.sunSensor",
+                                "data.partII.coefficientOfFriction",
+                                "data.partII.ambientAirTemperature",
+                                "data.partII.ambientAirPressure",
+                                "data.partII.transmissionState",
+                                "data.partII.vehicleSpeed",
+                                "data.partII.antiLockBrakeStatus",
+                                "data.partII.stabilityControlStatus",
+                                "data.partII.tractionControlStatus",
+                                "data.partII.brakeBoostApplied",
+                                "data.partII.brakeAppliedStatus",
+                                "data.partII.auxiliaryBrakeStatus",
+                                "data.partII.tirePressure",
+                                "data.partII.acceleratorPedalPosition",
+                                "data.partII.brakePedalPosition",
+                                "data.partII.disabledVehicle",
+                                "data.partII.stalledVehicle",
+                                "data.partII.airBagDeployment",
+                            };
+
+    auto& payload = document["payload"];
+    auto& data = payload["data"];
+    auto& partII = data["partII"];
+
+    // get num members present that should be redacted before redaction
+    int numMembersPresentBeforeRedaction = 0;
+    for (int i = 0 ; i < sizeof(paths)/sizeof(paths[0]); i++) {
+        std::string path = paths[i];
+
+        bool success = false;
+        redactor.searchForMemberByPath(partII, path, success);
+
+        numMembersPresentBeforeRedaction += success;
+    }
+    log("Num members present before redaction: " + std::to_string(numMembersPresentBeforeRedaction));
+
+    // redact members
+    int numRedactions = 0;
+    for (int i = 0 ; i < sizeof(paths)/sizeof(paths[0]); i++) {
+        std::string path = paths[i];
+
+        bool psuccess1 = false;
+        redactor.searchForMemberByPath(partII, path, psuccess1);
+
+        bool rsuccess = false;
+        redactor.redactMemberByPath(partII, path, rsuccess);
+
+        bool psuccess2 = false;
+        redactor.searchForMemberByPath(partII, path, psuccess2);
+
+        numRedactions += rsuccess;
+    }
+    log("Num members redacted: " + std::to_string(numRedactions));
+
+    // get num members present that should have been redacted after redaction
+    int numMembersPresentAfterRedaction = 0;
+    for (int i = 0 ; i < sizeof(paths)/sizeof(paths[0]); i++) {
+        std::string path = paths[i];
+
+        bool success = false;
+        redactor.searchForMemberByName(partII, path, success);
+
+        numMembersPresentAfterRedaction += success;
+    }
+    log("Num members present after redaction: " + std::to_string(numMembersPresentAfterRedaction));
+
+    // print success/failure
+    if (numMembersPresentBeforeRedaction == numMembersPresentAfterRedaction + numRedactions) {
+        log("Redaction successful!");
+    } else {
+        log("Redaction failed!");
+    }
+
+    // redactor.printDocument(document);
+}
+
+int main() {
+    log("Testing redaction by name...");
+    testRedactionByName();
+    log("--------------------");
+
+    log("Testing redaction by path...");
+    testRedactionByPath();
+    log("--------------------");
     return 0;
 }

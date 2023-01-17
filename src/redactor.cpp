@@ -21,17 +21,75 @@ void Redactor::redactMemberByName(rapidjson::Value& value, std::string member, b
     }
 }
 
-void Redactor::isMemberPresent(rapidjson::Value& value, std::string member, bool& success) {
+void Redactor::redactMemberByPath(rapidjson::Value& value, std::string path, bool& success) {
+    std::string topLevel = getTopLevelFromPath(path);
+    // std::cout << "[DEBUG] " << "Searching for " << topLevel << " in " << std::endl;
+    if (value.IsObject()) {
+        if (value.HasMember(topLevel.c_str())) {
+            // std::cout << "[DEBUG] " << "Found " << topLevel << std::endl;
+            value.RemoveMember(topLevel.c_str());
+            success = true;
+            return;
+        }
+        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
+            removeTopLevelFromPath(path);
+            redactMemberByPath(itr->value, path, success);
+
+            if (success) {
+                return;
+            }
+        }
+    } else if (value.IsArray()) {
+        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
+            removeTopLevelFromPath(path);
+            redactMemberByPath(value[i], path, success);
+
+            if (success) {
+                return;
+            }
+        }
+    }
+}
+
+void Redactor::searchForMemberByName(rapidjson::Value& value, std::string member, bool& success) {
     if (value.IsObject()) {
         if (value.HasMember(member.c_str())) {
             success = true;
         }
         for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
-            isMemberPresent(itr->value, member, success);
+            searchForMemberByName(itr->value, member, success);
         }
     } else if (value.IsArray()) {
         for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
-            isMemberPresent(value[i], member, success);
+            searchForMemberByName(value[i], member, success);
+        }
+    }
+}
+
+void Redactor::searchForMemberByPath(rapidjson::Value& value, std::string path, bool& success) {
+    std::cout << "[DEBUG] " << "Path: " << path << std::endl;
+    std::string topLevel = getTopLevelFromPath(path);
+    if (value.IsObject()) {
+        if (value.HasMember(topLevel.c_str())) {
+            success = true;
+            return;
+        }
+        for (rapidjson::Value::MemberIterator itr = value.MemberBegin(); itr != value.MemberEnd(); ++itr) {
+            removeTopLevelFromPath(path);
+            searchForMemberByPath(itr->value, path, success);
+
+            if (success) {
+                return;
+            }
+        }
+    } else if (value.IsArray()) {
+        for (rapidjson::SizeType i = 0; i < value.Size(); i++) {
+            removeTopLevelFromPath(path);
+            searchForMemberByPath(value[i], path, success);
+
+            if (success) {
+                return;
+            }
         }
     }
 }
@@ -91,4 +149,19 @@ std::string Redactor::getIndent(int numSpaces) {
         toReturn = toReturn + " ";
     }
     return toReturn;
+}
+
+std::string Redactor::getTopLevelFromPath(std::string& path) {
+    int firstDot = path.find(".");
+    if (firstDot != std::string::npos) {
+        return path.substr(0, firstDot);
+    }
+    return path;
+}
+
+void Redactor::removeTopLevelFromPath(std::string& path) {
+    int firstDot = path.find(".");
+    if (firstDot != std::string::npos) {
+        path = path.substr(firstDot + 1);
+    }
 }
