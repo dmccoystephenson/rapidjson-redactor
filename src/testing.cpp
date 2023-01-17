@@ -123,6 +123,7 @@ int main() {
     }
     log("Num members present after redaction: " + std::to_string(numMembersPresentAfterRedaction));
 
+    // print success/failure
     if (numMembersPresentBeforeRedaction == numMembersPresentAfterRedaction + numRedactions) {
         log("Redaction successful!");
     } else {
