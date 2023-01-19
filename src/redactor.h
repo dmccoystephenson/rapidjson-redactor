@@ -28,4 +28,5 @@ class Redactor {
         std::string getIndent(int numSpaces);
         std::string getTopLevelFromPath(std::string& path);
         void removeTopLevelFromPath(std::string& path);
+        std::string getBottomLevelFromPath(std::string& path);
 };
